@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Calculadora de Sistema Linear</title>
   <style>
     body {
@@ -9,19 +9,37 @@
       background-color: #f3f3f3;
       padding: 40px;
       color: #333;
+      max-width: 600px;
+      margin: auto;
     }
     h1 {
       text-align: center;
       color: #444;
     }
-    textarea {
-      width: 100%;
-      height: 160px;
-      font-family: monospace;
+    label {
+      display: inline-block;
+      width: 30px;
+      text-align: center;
+      font-weight: bold;
+    }
+    input[type=number] {
+      width: 60px;
+      padding: 6px 8px;
+      margin: 4px;
       font-size: 16px;
-      padding: 10px;
       border: 1px solid #aaa;
       border-radius: 4px;
+      text-align: center;
+    }
+    .linha {
+      margin-bottom: 15px;
+    }
+    .matriz, .termos {
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 5px #ccc;
     }
     button {
       margin-top: 10px;
@@ -32,6 +50,8 @@
       color: white;
       border-radius: 4px;
       cursor: pointer;
+      display: block;
+      width: 100%;
     }
     button:hover {
       background-color: #0056b3;
@@ -41,29 +61,56 @@
       padding: 15px;
       border-radius: 5px;
       white-space: pre-wrap;
+      min-height: 80px;
     }
   </style>
 </head>
 <body>
-  <h1>Calculadora de Sistema Linear</h1>
-  <textarea id="jsonInput">{
-  "matriz": [
-    [2, -1],
-    [1, 2]
-  ],
-  "termos": [0, 5]
-}</textarea>
+  <h1>Calculadora de Sistema Linear 2x2</h1>
+
+  <div class="matriz">
+    <h3>Matriz dos Coeficientes (A)</h3>
+    <div class="linha">
+      <label for="a11">a11</label><input type="number" step="any" id="a11" value="2" />
+      <label for="a12">a12</label><input type="number" step="any" id="a12" value="-1" />
+    </div>
+    <div class="linha">
+      <label for="a21">a21</label><input type="number" step="any" id="a21" value="1" />
+      <label for="a22">a22</label><input type="number" step="any" id="a22" value="2" />
+    </div>
+  </div>
+
+  <div class="termos">
+    <h3>Termos Independentes (B)</h3>
+    <div class="linha">
+      <label for="b1">b1</label><input type="number" step="any" id="b1" value="0" />
+      <label for="b2">b2</label><input type="number" step="any" id="b2" value="5" />
+    </div>
+  </div>
+
   <button onclick="enviar()">Resolver</button>
+
   <h3>Resposta:</h3>
   <pre id="resposta">...</pre>
 
   <script>
     function enviar() {
-      const json = document.getElementById("jsonInput").value;
+      // Monta o JSON com os valores digitados
+      const jsonObj = {
+        matriz: [
+          [parseFloat(document.getElementById('a11').value), parseFloat(document.getElementById('a12').value)],
+          [parseFloat(document.getElementById('a21').value), parseFloat(document.getElementById('a22').value)]
+        ],
+        termos: [
+          parseFloat(document.getElementById('b1').value),
+          parseFloat(document.getElementById('b2').value)
+        ]
+      };
+
       fetch("http://localhost:8080/resolver", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: json
+        body: JSON.stringify(jsonObj)
       })
       .then(response => response.json())
       .then(data => {
