@@ -2,41 +2,81 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Resolver Sistema Linear</title>
+  <title>Calculadora de Sistema Linear</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f3f3;
+      padding: 40px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #444;
+    }
+    textarea {
+      width: 100%;
+      height: 160px;
+      font-family: monospace;
+      font-size: 16px;
+      padding: 10px;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 25px;
+      font-size: 16px;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    pre {
+      background-color: #eee;
+      padding: 15px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
-  <h2>Sistema Linear</h2>
-
-  <textarea id="jsonInput" rows="10" cols="60">
-{
+  <h1>Calculadora de Sistema Linear</h1>
+  <textarea id="jsonInput">{
   "matriz": [
-    [2, 3],
-    [1, -1]
+    [2, -1],
+    [1, 2]
   ],
-  "termos": [5, 0]
-}
-  </textarea><br><br>
-
+  "termos": [0, 5]
+}</textarea>
   <button onclick="enviar()">Resolver</button>
-
-  <h3>Resultado:</h3>
-  <pre id="resposta"></pre>
+  <h3>Resposta:</h3>
+  <pre id="resposta">...</pre>
 
   <script>
     function enviar() {
       const json = document.getElementById("jsonInput").value;
-
       fetch("http://localhost:8080/resolver", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: json
       })
-      .then(res => res.json())
+      .then(response => response.json())
       .then(data => {
-        document.getElementById("resposta").textContent = JSON.stringify(data, null, 2);
+        const respostaEl = document.getElementById("resposta");
+        if (data.mensagem) {
+          respostaEl.textContent = data.mensagem + 
+            (data.solucao ? `\nSolução: ${JSON.stringify(data.solucao, null, 2)}` : '');
+        } else {
+          respostaEl.textContent = "Erro desconhecido";
+        }
       })
-      .catch(err => {
-        document.getElementById("resposta").textContent = "Erro: " + err;
+      .catch(error => {
+        document.getElementById("resposta").textContent = "Erro ao conectar ao servidor.";
       });
     }
   </script>

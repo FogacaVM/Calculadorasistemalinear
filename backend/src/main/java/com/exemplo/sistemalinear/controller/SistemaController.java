@@ -2,68 +2,84 @@ package com.exemplo.sistemalinear.controller;
 
 import com.exemplo.sistemalinear.model.SistemaRequest;
 import com.exemplo.sistemalinear.model.SolucaoResponse;
-
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5500")  // Atualize para a porta onde seu front está rodando
+@RequestMapping("/resolver")
+@CrossOrigin(origins = "*")
 public class SistemaController {
 
-    @PostMapping("/resolver")
+    @PostMapping
     public SolucaoResponse resolver(@RequestBody SistemaRequest request) {
-        double[][] A = request.getMatriz();
-        double[] b = request.getTermos();
+        List<List<Double>> A = request.getMatriz();
+        List<Double> B = request.getTermos();
 
-        double[] x = gaussJordan(A, b);
+        int n = A.size();
 
-        return new SolucaoResponse(x);
-    }
+        // Validação
+        if (B.size() != n || A.stream().anyMatch(row -> row.size() != n)) {
+            return new SolucaoResponse(null, "Matriz inválida");
+        }
 
-    private double[] gaussJordan(double[][] A, double[] b) {
-        int n = b.length;
+        // Conversão para arrays
+        double[][] matriz = new double[n][n];
+        double[] termos = new double[n];
 
-        for (int p = 0; p < n; p++) {
-            // Busca linha com maior valor absoluto na coluna p
-            int max = p;
-            for (int i = p + 1; i < n; i++) {
-                if (Math.abs(A[i][p]) > Math.abs(A[max][p])) {
-                    max = i;
-                }
-            }
-
-            // Troca linhas A[p] e A[max]
-            double[] temp = A[p];
-            A[p] = A[max];
-            A[max] = temp;
-
-            double t = b[p];
-            b[p] = b[max];
-            b[max] = t;
-
-            // Normaliza linha p
-            if (Math.abs(A[p][p]) <= 1e-10) {
-                throw new ArithmeticException("Sistema sem solução única");
-            }
-            double pivot = A[p][p];
-            for (int j = p; j < n; j++) {
-                A[p][j] /= pivot;
-            }
-            b[p] /= pivot;
-
-            // Elimina outras linhas
-            for (int i = 0; i < n; i++) {
-                if (i != p) {
-                    double factor = A[i][p];
-                    for (int j = p; j < n; j++) {
-                        A[i][j] -= factor * A[p][j];
-                    }
-                    b[i] -= factor * b[p];
-                }
+        for (int i = 0; i < n; i++) {
+            termos[i] = B.get(i);
+            for (int j = 0; j < n; j++) {
+                matriz[i][j] = A.get(i).get(j);
             }
         }
-        return b;
+
+        // Substituição gaussiana
+        for (int i = 0; i < n; i++) {
+            if (matriz[i][i] == 0.0) return new SolucaoResponse(null, "O sistema não possui solução ou é indeterminado.");
+
+            for (int j = i + 1; j < n; j++) {
+                double ratio = matriz[j][i] / matriz[i][i];
+
+                for (int k = 0; k < n; k++) {
+                    matriz[j][k] -= ratio * matriz[i][k];
+                }
+                termos[j] -= ratio * termos[i];
+            }
+        }
+
+        // Verificação de sistema impossível ou indeterminado
+        for (int i = 0; i < n; i++) {
+            boolean zeroRow = true;
+            for (int j = 0; j < n; j++) {
+                if (Math.abs(matriz[i][j]) > 1e-8) {
+                    zeroRow = false;
+                    break;
+                }
+            }
+            if (zeroRow && Math.abs(termos[i]) > 1e-8) {
+                return new SolucaoResponse(null, "O sistema não possui solução.");
+            }
+            if (zeroRow && Math.abs(termos[i]) <= 1e-8) {
+                return new SolucaoResponse(null, "O sistema é indeterminado.");
+            }
+        }
+
+        // Substituição regressiva
+        double[] resultado = new double[n];
+        for (int i = n - 1; i >= 0; i--) {
+            resultado[i] = termos[i];
+            for (int j = i + 1; j < n; j++) {
+                resultado[i] -= matriz[i][j] * resultado[j];
+            }
+            resultado[i] /= matriz[i][i];
+        }
+
+        List<Double> solucao = new ArrayList<>();
+        for (double x : resultado) solucao.add(x);
+
+        return new SolucaoResponse(solucao, "Sistema resolvido com sucesso.");
     }
 }

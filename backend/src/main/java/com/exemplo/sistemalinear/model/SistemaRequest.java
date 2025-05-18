@@ -1,22 +1,24 @@
 package com.exemplo.sistemalinear.model;
 
-public class SistemaRequest {
-    private double[][] matriz;
-    private double[] termos;
+import java.util.List;
 
-    public double[][] getMatriz() {
+public class SistemaRequest {
+    private List<List<Double>> matriz;
+    private List<Double> termos;
+
+    public List<List<Double>> getMatriz() {
         return matriz;
     }
 
-    public void setMatriz(double[][] matriz) {
+    public void setMatriz(List<List<Double>> matriz) {
         this.matriz = matriz;
     }
 
-    public double[] getTermos() {
+    public List<Double> getTermos() {
         return termos;
     }
 
-    public void setTermos(double[] termos) {
+    public void setTermos(List<Double> termos) {
         this.termos = termos;
     }
 }

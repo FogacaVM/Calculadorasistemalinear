@@ -1,17 +1,31 @@
 package com.exemplo.sistemalinear.model;
 
-public class SolucaoResponse {
-    private double[] solucao;
+import java.util.List;
 
-    public SolucaoResponse(double[] solucao) {
+public class SolucaoResponse {
+    private List<Double> solucao;
+    private String mensagem;
+
+    public SolucaoResponse() {}
+
+    public SolucaoResponse(List<Double> solucao, String mensagem) {
         this.solucao = solucao;
+        this.mensagem = mensagem;
     }
 
-    public double[] getSolucao() {
+    public List<Double> getSolucao() {
         return solucao;
     }
 
-    public void setSolucao(double[] solucao) {
+    public void setSolucao(List<Double> solucao) {
         this.solucao = solucao;
+    }
+
+    public String getMensagem() {
+        return mensagem;
+    }
+
+    public void setMensagem(String mensagem) {
+        this.mensagem = mensagem;
     }
 }
