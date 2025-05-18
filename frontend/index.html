@@ -94,16 +94,39 @@
       font-weight: 600;
       font-size: 16px;
     }
+
+    /* Estilos para label e select alinhados */
+    .form-row {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .form-row label[for="tamanhoSistema"] {
+      font-weight: 600;
+      font-size: 16px;
+      width: auto;
+      text-align: left;
+    }
+    #tamanhoSistema {
+      padding: 5px 8px;
+      font-size: 16px;
+      border-radius: 4px;
+      border: 1px solid #aaa;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <h1>Calculadora de Sistema Linear 2x2 ou 3x3</h1>
 
-  <label for="tamanhoSistema">Escolha o tamanho do sistema:</label>
-  <select id="tamanhoSistema" onchange="atualizarInputs()">
-    <option value="2">2x2</option>
-    <option value="3">3x3</option>
-  </select>
+  <div class="form-row">
+    <label for="tamanhoSistema">Escolha o tamanho do sistema:</label>
+    <select id="tamanhoSistema" onchange="atualizarInputs()">
+      <option value="2">2x2</option>
+      <option value="3">3x3</option>
+    </select>
+  </div>
 
   <div class="matriz" id="matrizInputs">
     <!-- Inputs da matriz serão gerados aqui -->
@@ -119,38 +142,38 @@
   <pre id="resposta">...</pre>
 
   <script>
-    // Função para criar inputs dinamicamente conforme tamanho do sistema
     function atualizarInputs() {
       const n = parseInt(document.getElementById('tamanhoSistema').value);
       const matrizDiv = document.getElementById('matrizInputs');
       const termosDiv = document.getElementById('termosInputs');
+
       matrizDiv.innerHTML = `<h3>Matriz dos Coeficientes (A)</h3>`;
       termosDiv.innerHTML = `<h3>Termos Independentes (B)</h3>`;
 
-      // Criar inputs da matriz A (nxn)
-      for(let i = 0; i < n; i++) {
+      // Inputs da matriz A (nxn)
+      for (let i = 0; i < n; i++) {
         let linhaHtml = '<div class="linha">';
-        for(let j = 0; j < n; j++) {
+        for (let j = 0; j < n; j++) {
           linhaHtml += `<label for="a${i}${j}">a${i+1}${j+1}</label><input type="number" step="any" id="a${i}${j}" value="0" />`;
         }
         linhaHtml += '</div>';
         matrizDiv.innerHTML += linhaHtml;
       }
 
-      // Criar inputs dos termos independentes B (nx1)
+      // Inputs dos termos independentes B (nx1)
       let termosHtml = '<div class="linha">';
-      for(let i = 0; i < n; i++) {
+      for (let i = 0; i < n; i++) {
         termosHtml += `<label for="b${i}">b${i+1}</label><input type="number" step="any" id="b${i}" value="0" />`;
       }
       termosHtml += '</div>';
       termosDiv.innerHTML += termosHtml;
 
-      // Colocar valores padrões legais para teste (opcional)
-      if(n === 2) {
+      // Valores padrões para teste
+      if (n === 2) {
         document.getElementById('a00').value = 2; document.getElementById('a01').value = -1;
         document.getElementById('a10').value = 1; document.getElementById('a11').value = 2;
         document.getElementById('b0').value = 0; document.getElementById('b1').value = 5;
-      } else if(n === 3) {
+      } else if (n === 3) {
         document.getElementById('a00').value = 1; document.getElementById('a01').value = 1; document.getElementById('a02').value = 1;
         document.getElementById('a10').value = 0; document.getElementById('a11').value = 2; document.getElementById('a12').value = 5;
         document.getElementById('a20').value = 2; document.getElementById('a21').value = 5; document.getElementById('a22').value = -1;
@@ -158,7 +181,7 @@
       }
     }
 
-    // Inicializa inputs para 2x2 ao carregar página
+    // Inicializa inputs para 2x2 ao carregar a página
     atualizarInputs();
 
     function enviar() {
@@ -166,21 +189,20 @@
       const matriz = [];
       const termos = [];
 
-      for(let i = 0; i < n; i++) {
+      for (let i = 0; i < n; i++) {
         const linha = [];
-        for(let j = 0; j < n; j++) {
+        for (let j = 0; j < n; j++) {
           const val = parseFloat(document.getElementById(`a${i}${j}`).value);
           linha.push(isNaN(val) ? 0 : val);
         }
         matriz.push(linha);
       }
-      for(let i = 0; i < n; i++) {
+      for (let i = 0; i < n; i++) {
         const val = parseFloat(document.getElementById(`b${i}`).value);
         termos.push(isNaN(val) ? 0 : val);
       }
 
       const jsonObj = { matriz, termos };
-
       const respostaEl = document.getElementById("resposta");
       respostaEl.textContent = "Carregando...";
 
