@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Calculadora de Sistema Linear</title>
+  <title>Calculadora de Sistema Linear 2x2 ou 3x3</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -52,40 +52,65 @@
       cursor: pointer;
       display: block;
       width: 100%;
+      transition: background-color 0.3s ease;
     }
     button:hover {
       background-color: #0056b3;
     }
-    pre {
-      background-color: #eee;
-      padding: 15px;
-      border-radius: 5px;
+    #resposta {
+      background-color: #fff;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      padding: 15px 20px;
+      min-height: 90px;
+      font-size: 18px;
+      margin-top: 20px;
       white-space: pre-wrap;
-      min-height: 80px;
+      color: #222;
+      font-family: monospace;
+    }
+    .solucao-lista {
+      list-style-type: none;
+      padding-left: 0;
+      font-family: monospace;
+      font-size: 20px;
+      color: #333;
+      margin-top: 10px;
+    }
+    .solucao-lista li {
+      background-color: #e6f0ff;
+      border: 1px solid #cce0ff;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      border-radius: 5px;
+      width: fit-content;
+    }
+    .mensagem-erro {
+      color: #b00020;
+      background-color: #ffe5e5;
+      border: 1px solid #b00020;
+      padding: 12px 15px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
-  <h1>Calculadora de Sistema Linear 2x2</h1>
+  <h1>Calculadora de Sistema Linear 2x2 ou 3x3</h1>
 
-  <div class="matriz">
-    <h3>Matriz dos Coeficientes (A)</h3>
-    <div class="linha">
-      <label for="a11">a11</label><input type="number" step="any" id="a11" value="2" />
-      <label for="a12">a12</label><input type="number" step="any" id="a12" value="-1" />
-    </div>
-    <div class="linha">
-      <label for="a21">a21</label><input type="number" step="any" id="a21" value="1" />
-      <label for="a22">a22</label><input type="number" step="any" id="a22" value="2" />
-    </div>
+  <label for="tamanhoSistema">Escolha o tamanho do sistema:</label>
+  <select id="tamanhoSistema" onchange="atualizarInputs()">
+    <option value="2">2x2</option>
+    <option value="3">3x3</option>
+  </select>
+
+  <div class="matriz" id="matrizInputs">
+    <!-- Inputs da matriz serão gerados aqui -->
   </div>
 
-  <div class="termos">
-    <h3>Termos Independentes (B)</h3>
-    <div class="linha">
-      <label for="b1">b1</label><input type="number" step="any" id="b1" value="0" />
-      <label for="b2">b2</label><input type="number" step="any" id="b2" value="5" />
-    </div>
+  <div class="termos" id="termosInputs">
+    <!-- Inputs dos termos independentes serão gerados aqui -->
   </div>
 
   <button onclick="enviar()">Resolver</button>
@@ -94,18 +119,70 @@
   <pre id="resposta">...</pre>
 
   <script>
+    // Função para criar inputs dinamicamente conforme tamanho do sistema
+    function atualizarInputs() {
+      const n = parseInt(document.getElementById('tamanhoSistema').value);
+      const matrizDiv = document.getElementById('matrizInputs');
+      const termosDiv = document.getElementById('termosInputs');
+      matrizDiv.innerHTML = `<h3>Matriz dos Coeficientes (A)</h3>`;
+      termosDiv.innerHTML = `<h3>Termos Independentes (B)</h3>`;
+
+      // Criar inputs da matriz A (nxn)
+      for(let i = 0; i < n; i++) {
+        let linhaHtml = '<div class="linha">';
+        for(let j = 0; j < n; j++) {
+          linhaHtml += `<label for="a${i}${j}">a${i+1}${j+1}</label><input type="number" step="any" id="a${i}${j}" value="0" />`;
+        }
+        linhaHtml += '</div>';
+        matrizDiv.innerHTML += linhaHtml;
+      }
+
+      // Criar inputs dos termos independentes B (nx1)
+      let termosHtml = '<div class="linha">';
+      for(let i = 0; i < n; i++) {
+        termosHtml += `<label for="b${i}">b${i+1}</label><input type="number" step="any" id="b${i}" value="0" />`;
+      }
+      termosHtml += '</div>';
+      termosDiv.innerHTML += termosHtml;
+
+      // Colocar valores padrões legais para teste (opcional)
+      if(n === 2) {
+        document.getElementById('a00').value = 2; document.getElementById('a01').value = -1;
+        document.getElementById('a10').value = 1; document.getElementById('a11').value = 2;
+        document.getElementById('b0').value = 0; document.getElementById('b1').value = 5;
+      } else if(n === 3) {
+        document.getElementById('a00').value = 1; document.getElementById('a01').value = 1; document.getElementById('a02').value = 1;
+        document.getElementById('a10').value = 0; document.getElementById('a11').value = 2; document.getElementById('a12').value = 5;
+        document.getElementById('a20').value = 2; document.getElementById('a21').value = 5; document.getElementById('a22').value = -1;
+        document.getElementById('b0').value = 6; document.getElementById('b1').value = -4; document.getElementById('b2').value = 27;
+      }
+    }
+
+    // Inicializa inputs para 2x2 ao carregar página
+    atualizarInputs();
+
     function enviar() {
-      // Monta o JSON com os valores digitados
-      const jsonObj = {
-        matriz: [
-          [parseFloat(document.getElementById('a11').value), parseFloat(document.getElementById('a12').value)],
-          [parseFloat(document.getElementById('a21').value), parseFloat(document.getElementById('a22').value)]
-        ],
-        termos: [
-          parseFloat(document.getElementById('b1').value),
-          parseFloat(document.getElementById('b2').value)
-        ]
-      };
+      const n = parseInt(document.getElementById('tamanhoSistema').value);
+      const matriz = [];
+      const termos = [];
+
+      for(let i = 0; i < n; i++) {
+        const linha = [];
+        for(let j = 0; j < n; j++) {
+          const val = parseFloat(document.getElementById(`a${i}${j}`).value);
+          linha.push(isNaN(val) ? 0 : val);
+        }
+        matriz.push(linha);
+      }
+      for(let i = 0; i < n; i++) {
+        const val = parseFloat(document.getElementById(`b${i}`).value);
+        termos.push(isNaN(val) ? 0 : val);
+      }
+
+      const jsonObj = { matriz, termos };
+
+      const respostaEl = document.getElementById("resposta");
+      respostaEl.textContent = "Carregando...";
 
       fetch("http://localhost:8080/resolver", {
         method: "POST",
@@ -114,16 +191,23 @@
       })
       .then(response => response.json())
       .then(data => {
-        const respostaEl = document.getElementById("resposta");
         if (data.mensagem) {
-          respostaEl.textContent = data.mensagem + 
-            (data.solucao ? `\nSolução: ${JSON.stringify(data.solucao, null, 2)}` : '');
+          if (data.solucao) {
+            const nomes = ["x", "y", "z"];
+            let html = `${data.mensagem}\n\nSolução:\n`;
+            data.solucao.forEach((valor, i) => {
+              html += `  ${nomes[i]} = ${valor.toFixed(3)}\n`;
+            });
+            respostaEl.textContent = html;
+          } else {
+            respostaEl.innerHTML = `<span class="mensagem-erro">${data.mensagem}</span>`;
+          }
         } else {
           respostaEl.textContent = "Erro desconhecido";
         }
       })
-      .catch(error => {
-        document.getElementById("resposta").textContent = "Erro ao conectar ao servidor.";
+      .catch(() => {
+        respostaEl.innerHTML = `<span class="mensagem-erro">Erro ao conectar ao servidor.</span>`;
       });
     }
   </script>
