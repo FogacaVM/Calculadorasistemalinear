@@ -60,7 +60,7 @@ Resultados possíveis:
 
 ## Tecnologias utilizadas
 
-- HTML, CSS, JavaScript puro
+- HTML, CSS, JavaScript 
 - LocalStorage para histórico
 - Interface baseada em Material Icons
 
