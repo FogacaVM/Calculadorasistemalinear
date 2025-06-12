@@ -2,236 +2,187 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Calculadora de Sistema Linear 2x2 ou 3x3</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f3f3f3;
-      padding: 40px;
-      color: #333;
-      max-width: 600px;
-      margin: auto;
-    }
-    h1 {
-      text-align: center;
-      color: #444;
-    }
-    label {
-      display: inline-block;
-      width: 30px;
-      text-align: center;
-      font-weight: bold;
-    }
-    input[type=number] {
-      width: 60px;
-      padding: 6px 8px;
-      margin: 4px;
-      font-size: 16px;
-      border: 1px solid #aaa;
-      border-radius: 4px;
-      text-align: center;
-    }
-    .linha {
-      margin-bottom: 15px;
-    }
-    .matriz, .termos {
-      margin-bottom: 20px;
-      padding: 10px;
-      background-color: #fff;
-      border-radius: 5px;
-      box-shadow: 0 0 5px #ccc;
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px 25px;
-      font-size: 16px;
-      border: none;
-      background-color: #007BFF;
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
-      display: block;
-      width: 100%;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    #resposta {
-      background-color: #fff;
-      border-radius: 6px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-      padding: 15px 20px;
-      min-height: 90px;
-      font-size: 18px;
-      margin-top: 20px;
-      white-space: pre-wrap;
-      color: #222;
-      font-family: monospace;
-    }
-    .solucao-lista {
-      list-style-type: none;
-      padding-left: 0;
-      font-family: monospace;
-      font-size: 20px;
-      color: #333;
-      margin-top: 10px;
-    }
-    .solucao-lista li {
-      background-color: #e6f0ff;
-      border: 1px solid #cce0ff;
-      padding: 8px 12px;
-      margin-bottom: 8px;
-      border-radius: 5px;
-      width: fit-content;
-    }
-    .mensagem-erro {
-      color: #b00020;
-      background-color: #ffe5e5;
-      border: 1px solid #b00020;
-      padding: 12px 15px;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 16px;
-    }
-
-    /* Estilos para label e select alinhados */
-    .form-row {
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .form-row label[for="tamanhoSistema"] {
-      font-weight: 600;
-      font-size: 16px;
-      width: auto;
-      text-align: left;
-    }
-    #tamanhoSistema {
-      padding: 5px 8px;
-      font-size: 16px;
-      border-radius: 4px;
-      border: 1px solid #aaa;
-      cursor: pointer;
-    }
-  </style>
+  <title>Calculadora de Sistema Linear</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Ícones Google Material -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" /> 
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>Calculadora de Sistema Linear 2x2 ou 3x3</h1>
-
-  <div class="form-row">
-    <label for="tamanhoSistema">Escolha o tamanho do sistema:</label>
-    <select id="tamanhoSistema" onchange="atualizarInputs()">
-      <option value="2">2x2</option>
-      <option value="3">3x3</option>
-    </select>
+  <!-- Botão de alternância de tema -->
+  <div class="theme-toggle" id="themeToggle" title="Alternar tema">
+    <span class="material-icons" id="themeIcon">dark_mode</span>
   </div>
 
-  <div class="matriz" id="matrizInputs">
-    <!-- Inputs da matriz serão gerados aqui -->
+  <div class="header">
+    <div class="header-title">
+      <span class="material-icons" style="font-size: 2.2rem">calculate</span>
+      Calculadora de Sistema Linear
+    </div>
+    <div class="header-desc">Resolva sistemas lineares com entrada por texto</div>
   </div>
 
-  <div class="termos" id="termosInputs">
-    <!-- Inputs dos termos independentes serão gerados aqui -->
+  <!-- ========== ENTRADA POR TEXTO ========== -->
+  <div class="main-container">
+    <div class="text-input-card">
+      <div class="text-input-title">
+        <span class="material-icons">text_fields</span>
+        Entrada por Texto
+      </div>
+      <textarea
+        class="text-input-area"
+        id="textInput"
+        placeholder="Cole ou digite seu sistema aqui...&#10;&#10;Exemplos:&#10;2x + 3y = 8&#10;x - y = 0&#10;&#10;ou&#10;&#10;x + 2y + z = 6&#10;2x - y + 3z = 14&#10;3x + y - z = 2"
+      ></textarea>
+
+      <div class="text-input-examples">
+        <strong>Formatos aceitos:</strong><br />
+        • <code>2x + 3y = 8; x - y = 0</code><br />
+        • <code>2x + 3y = 8<br />x - y = 0</code><br />
+        • <code
+          >x + 2y + z = 6; 2x - y + 3z = 14; 3x + y - z = 2</code
+        ><br />
+        • Variáveis: x, y, z, w (ou x1, x2, x3, x4)
+      </div>
+
+      <button class="parse-btn" onclick="parseTextInput()">
+        <span class="material-icons">auto_fix_high</span>
+        Processar Sistema
+      </button>
+
+      <div class="parse-status" id="parseStatus"></div>
+
+      <div class="text-input-history">
+        <div class="text-input-history-title">Histórico de Entradas</div>
+        <ul id="textInputHistoryList" class="text-input-history-list"></ul>
+        <button
+          class="tools-btn"
+          style="margin-top: 8px; width: 100%"
+          onclick="clearTextInputHistory()"
+        >
+          <span class="material-icons">delete</span> Limpar Histórico de Entrada
+        </button>
+      </div>
+    </div>
   </div>
 
-  <button onclick="enviar()">Resolver</button>
-
-  <h3>Resposta:</h3>
-  <pre id="resposta">...</pre>
-
-  <script>
-    function atualizarInputs() {
-      const n = parseInt(document.getElementById('tamanhoSistema').value);
-      const matrizDiv = document.getElementById('matrizInputs');
-      const termosDiv = document.getElementById('termosInputs');
-
-      matrizDiv.innerHTML = `<h3>Matriz dos Coeficientes (A)</h3>`;
-      termosDiv.innerHTML = `<h3>Termos Independentes (B)</h3>`;
-
-      // Inputs da matriz A (nxn)
-      for (let i = 0; i < n; i++) {
-        let linhaHtml = '<div class="linha">';
-        for (let j = 0; j < n; j++) {
-          linhaHtml += `<label for="a${i}${j}">a${i+1}${j+1}</label><input type="number" step="any" id="a${i}${j}" value="0" />`;
-        }
-        linhaHtml += '</div>';
-        matrizDiv.innerHTML += linhaHtml;
-      }
-
-      // Inputs dos termos independentes B (nx1)
-      let termosHtml = '<div class="linha">';
-      for (let i = 0; i < n; i++) {
-        termosHtml += `<label for="b${i}">b${i+1}</label><input type="number" step="any" id="b${i}" value="0" />`;
-      }
-      termosHtml += '</div>';
-      termosDiv.innerHTML += termosHtml;
-
-      // Valores padrões para teste
-      if (n === 2) {
-        document.getElementById('a00').value = 2; document.getElementById('a01').value = -1;
-        document.getElementById('a10').value = 1; document.getElementById('a11').value = 2;
-        document.getElementById('b0').value = 0; document.getElementById('b1').value = 5;
-      } else if (n === 3) {
-        document.getElementById('a00').value = 1; document.getElementById('a01').value = 1; document.getElementById('a02').value = 1;
-        document.getElementById('a10').value = 0; document.getElementById('a11').value = 2; document.getElementById('a12').value = 5;
-        document.getElementById('a20').value = 2; document.getElementById('a21').value = 5; document.getElementById('a22').value = -1;
-        document.getElementById('b0').value = 6; document.getElementById('b1').value = -4; document.getElementById('b2').value = 27;
-      }
-    }
-
-    // Inicializa inputs para 2x2 ao carregar a página
-    atualizarInputs();
-
-    function enviar() {
-      const n = parseInt(document.getElementById('tamanhoSistema').value);
-      const matriz = [];
-      const termos = [];
-
-      for (let i = 0; i < n; i++) {
-        const linha = [];
-        for (let j = 0; j < n; j++) {
-          const val = parseFloat(document.getElementById(`a${i}${j}`).value);
-          linha.push(isNaN(val) ? 0 : val);
-        }
-        matriz.push(linha);
-      }
-      for (let i = 0; i < n; i++) {
-        const val = parseFloat(document.getElementById(`b${i}`).value);
-        termos.push(isNaN(val) ? 0 : val);
-      }
-
-      const jsonObj = { matriz, termos };
-      const respostaEl = document.getElementById("resposta");
-      respostaEl.textContent = "Carregando...";
-
-      fetch("http://localhost:8080/resolver", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(jsonObj)
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.mensagem) {
-          if (data.solucao) {
-            const nomes = ["x", "y", "z"];
-            let html = `${data.mensagem}\n\nSolução:\n`;
-            data.solucao.forEach((valor, i) => {
-              html += `  ${nomes[i]} = ${valor.toFixed(3)}\n`;
-            });
-            respostaEl.textContent = html;
-          } else {
-            respostaEl.innerHTML = `<span class="mensagem-erro">${data.mensagem}</span>`;
-          }
-        } else {
-          respostaEl.textContent = "Erro desconhecido";
-        }
-      })
-      .catch(() => {
-        respostaEl.innerHTML = `<span class="mensagem-erro">Erro ao conectar ao servidor.</span>`;
-      });
-    }
-  </script>
+  <div class="main-container">
+    <div class="left-panel">
+      <div class="card">
+        <div class="card-title">
+          <span class="material-icons">settings</span>
+          Configuração do Sistema
+        </div>
+        <div class="tab-group">
+          <button
+            class="tab-btn active"
+            id="tab-2x2"
+            onclick="setSystemSize(2)"
+            >Sistema 2×2</button
+          >
+          <button class="tab-btn" id="tab-3x3" onclick="setSystemSize(3)"
+            >Sistema 3×3</button
+          >
+          <button class="tab-btn" id="tab-4x4" onclick="setSystemSize(4)"
+            >Sistema 4×4</button
+          >
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span class="material-icons">view_module</span>
+          Matriz A (Coeficientes)
+        </div>
+        <div class="matrix-section" id="matrixA"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span class="material-icons">star</span>
+          Vetor B (Termos Independentes)
+        </div>
+        <div class="matrix-section" id="vectorB"></div>
+      </div>
+      <button class="main-btn" onclick="analyzeSystem()">
+        <span class="material-icons">calculate</span>
+        Calcular Sistema
+      </button>
+      <div class="card" id="resultCard" style="display: none">
+        <div class="card-title">
+          <span class="material-icons">insights</span>
+          Resultado
+        </div>
+        <div id="result"></div>
+        <div id="explanation" style="margin-top: 10px"></div>
+      </div>
+    </div>
+    <div class="right-panel">
+      <div class="card quick-examples">
+        <div class="card-title">
+          <span class="material-icons">bolt</span>
+          Exemplos Rápidos
+        </div>
+        <button class="example-btn" onclick="setExample(2)">
+          <span class="material-icons" style="color: var(--danger)">warning</span>
+          Sistema 2×2 Simples
+        </button>
+        <button class="example-btn" onclick="setExample(3)">
+          <span
+            class="material-icons"
+            style="color: var(--success)"
+            >check_circle</span
+          >
+          Sistema 3×3 Identidade
+        </button>
+        <button class="example-btn" onclick="setExample(0)">
+          <span class="material-icons" style="color: var(--danger)"
+            >report_problem</span
+          >
+          Sistema Sem Solução
+        </button>
+        <button class="example-btn" onclick="setTextExample()">
+          <span class="material-icons" style="color: var(--primary)"
+            >text_fields</span
+          >
+          Exemplo de Texto
+        </button>
+      </div>
+      <div class="card tools">
+        <div class="card-title">
+          <span class="material-icons">flag</span>
+          Ferramentas
+        </div>
+        <div class="tools-row">
+          <button class="tools-btn" onclick="clearFields()">
+            <span class="material-icons">clear</span> Limpar
+          </button>
+          <button class="tools-btn" onclick="copyResult()">
+            <span class="material-icons">content_copy</span> Copiar
+          </button>
+        </div>
+        <div class="tools-row">
+          <button class="tools-btn" onclick="downloadPDF()">
+            <span class="material-icons">picture_as_pdf</span> PDF
+          </button>
+          <button class="tools-btn" onclick="setRandom()">
+            <span class="material-icons">casino</span> Aleatório
+          </button>
+        </div>
+      </div>
+      <div class="card history">
+        <div class="card-title">
+          <span class="material-icons">history</span>
+          Histórico
+        </div>
+        <ul class="history-list" id="history-list"></ul>
+        <div class="history-empty" id="history-empty">
+          Nenhum cálculo realizado ainda
+        </div>
+        <button class="tools-btn" style="margin-top: 10px" onclick="clearHistory()">
+          <span class="material-icons">delete</span> Limpar Histórico
+        </button>
+      </div>
+    </div>
+  </div>  
+<script src="script.js"></script>
 </body>
 </html>
